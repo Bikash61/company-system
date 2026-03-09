@@ -26,3 +26,24 @@ export const getPostBySlug = async (slug: string) => {
   return response.data;
 };
 
+export const createPost = async (postData: any, token: string) => {
+  const response = await API.post('/blog', postData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const updatePost = async (id: string, postData: any, token: string) => {
+  const response = await API.put(`/blog/${id}`, postData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const deletePost = async (id: string, token: string) => {
+  const response = await API.delete(`/blog/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
