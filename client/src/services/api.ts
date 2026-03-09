@@ -47,3 +47,10 @@ export const deletePost = async (id: string, token: string) => {
   return response.data;
 };
 
+// --- Portfolio ---
+export const getPortfolioItems = async () => {
+  const response = await API.get('/portfolio');
+  return response.data;
+};
+
+
