@@ -53,4 +53,30 @@ export const getPortfolioItems = async () => {
   return response.data;
 };
 
+export const getPortfolioItemById = async (id: string) => {
+  const response = await API.get(`/portfolio/${id}`);
+  return response.data;
+};
+
+export const createPortfolioItem = async (itemData: any, token: string) => {
+  const response = await API.post('/portfolio', itemData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const updatePortfolioItem = async (id: string, itemData: any, token: string) => {
+  const response = await API.put(`/portfolio/${id}`, itemData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const deletePortfolioItem = async (id: string, token: string) => {
+  const response = await API.delete(`/portfolio/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 
