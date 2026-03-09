@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { BlogModule } from './blog/blog.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { LeadsModule } from './leads/leads.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { LeadsModule } from './leads/leads.module';
     BlogModule,
     PortfolioModule,
     LeadsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
