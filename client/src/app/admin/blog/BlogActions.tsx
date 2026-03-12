@@ -1,5 +1,3 @@
-'use client';
-
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { deletePost } from '@/services/api';
@@ -15,13 +13,7 @@ export default function BlogActions({ postId, postSlug }: BlogActionsProps) {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/auth/login');
-          return;
-        }
-        await deletePost(postId, token);
-        // Refresh the page to see the updated list
+        await deletePost(postId);
         router.refresh();
       } catch (error) {
         console.error('Failed to delete post', error);

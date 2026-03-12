@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from '@/auth/schemas/user.schema';
+import { User } from '../../auth/schemas/user.schema';
 
 export type BlogPostDocument = BlogPost & Document;
 
@@ -17,6 +17,15 @@ export class BlogPost {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   author: User;
+
+  @Prop()
+  excerpt: string;
+
+  @Prop()
+  category: string;
+
+  @Prop()
+  imageUrl: string;
 
   @Prop({ default: 'Published' })
   status: string; // e.g., 'Draft', 'Published'

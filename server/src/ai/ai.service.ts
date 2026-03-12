@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { ProcessTextDto } from './dto/process-text.dto';
+import { ProcessTextDto, ChatMessageDto } from './dto/process-text.dto';
 
 @Injectable()
 export class AiService {
@@ -17,6 +17,19 @@ export class AiService {
     } catch (error) {
       console.error('Error contacting AI service:', error);
       throw new Error('Failed to process text with AI service.');
+    }
+  }
+
+  async chat(chatMessageDto: ChatMessageDto) {
+    const aiServiceUrl = 'http://127.0.0.1:8000/chat';
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(aiServiceUrl, chatMessageDto),
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error contacting AI chat service:', error);
+      return { reply: "I'm having trouble connecting right now. Please visit our [contact page](/contact) to reach us directly.", action: 'contact' };
     }
   }
 }

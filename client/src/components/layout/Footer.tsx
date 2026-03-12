@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
+import NewsletterSignup from './NewsletterSignup';
 
 const Footer = () => {
   return (
@@ -7,12 +8,14 @@ const Footer = () => {
       <div className="container mx-auto py-12 px-6 lg:px-8">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8 xl:col-span-1">
-            <h2 className="text-2xl font-bold">Aus-Tech</h2>
+            <h2 className="text-2xl font-bold">Austere<span className="text-indigo-400">Analytics</span></h2>
             <p className="text-gray-400">
-              Building the future, one line of code at a time.
+              Turning data and code into business outcomes.
             </p>
-            <div className="flex space-x-6">
-              {/* Add social media links here */}
+            {/* Newsletter */}
+            <div>
+              <p className="text-sm font-semibold text-white mb-3">Stay in the loop</p>
+              <NewsletterSignup />
             </div>
           </div>
           <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
@@ -21,14 +24,13 @@ const Footer = () => {
                 <h3 className="text-sm font-semibold tracking-wider uppercase">Solutions</h3>
                 <ul className="mt-4 space-y-4">
                   <li><Link href="/portfolio" className="text-base text-gray-400 hover:text-white">Our Work</Link></li>
-                  {/* Add more links as needed */}
+                  <li><Link href="/resources" className="text-base text-gray-400 hover:text-white">Resources</Link></li>
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
                 <h3 className="text-sm font-semibold tracking-wider uppercase">Support</h3>
                 <ul className="mt-4 space-y-4">
                   <li><Link href="/contact" className="text-base text-gray-400 hover:text-white">Contact Us</Link></li>
-                   {/* Add more links as needed */}
                 </ul>
               </div>
             </div>
@@ -37,7 +39,7 @@ const Footer = () => {
                 <h3 className="text-sm font-semibold tracking-wider uppercase">Company</h3>
                 <ul className="mt-4 space-y-4">
                   <li><Link href="/blog" className="text-base text-gray-400 hover:text-white">Blog</Link></li>
-                   {/* Add more links as needed */}
+                  <li><Link href="/about" className="text-base text-gray-400 hover:text-white">About</Link></li>
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">

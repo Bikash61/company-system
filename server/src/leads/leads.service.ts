@@ -3,25 +3,32 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { Lead, LeadDocument, LeadStatus } from './schemas/lead.schema';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class LeadsService {
-  constructor(@InjectModel(Lead.name) private leadModel: Model<LeadDocument>) {}
+  constructor(
+    @InjectModel(Lead.name) private leadModel: Model<LeadDocument>,
+    private readonly mailService: MailService,
+  ) {}
 
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
-    const createdLead = new this.leadModel(createLeadDto);
-    return createdLead.save();
+    const lead = await this.leadModel.create(createLeadDto);
+    // Fire-and-forget emails
+    this.mailService.sendLeadNotification(createLeadDto);
+    this.mailService.sendLeadWelcome({ name: createLeadDto.name, email: createLeadDto.email });
+    return lead;
   }
 
   async findAll(): Promise<Lead[]> {
     return this.leadModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  async findOne(id: string): Promise<Lead> {
+  async findOne(id: string): Promise<Lead | null> {
     return this.leadModel.findById(id).exec();
   }
 
-  async updateStatus(id: string, status: LeadStatus): Promise<Lead> {
+  async updateStatus(id: string, status: LeadStatus): Promise<Lead | null> {
     return this.leadModel.findByIdAndUpdate(id, { status }, { new: true }).exec();
   }
 

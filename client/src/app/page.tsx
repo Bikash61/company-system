@@ -1,4 +1,8 @@
 import Link from 'next/link';
+import Services from '@/components/home/Services';
+import Portfolio from '@/components/home/Portfolio';
+import Testimonials from '@/components/home/Testimonials';
+import CTA from '@/components/home/CTA';
 
 export default function Home() {
   return (
@@ -39,6 +43,10 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <Services />
+        <Portfolio />
+        <Testimonials />
+        <CTA />
       </main>
     </div>
   );

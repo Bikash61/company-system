@@ -4,66 +4,80 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPost } from '@/services/api';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState('');
+  const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
+  const [category, setCategory] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [tags, setTags] = useState('');
+  const [status, setStatus] = useState('Published');
   const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('You must be logged in to create a post.');
-        router.push('/auth/login');
-        return;
-      }
-      await createPost({ title, content }, token);
+      const tagsArray = tags.split(',').map(t => t.trim()).filter(Boolean);
+      await createPost({ title, excerpt, content, category, imageUrl, tags: tagsArray, status });
       router.push('/admin/blog');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create post. Please try again.');
+    } catch (err) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setError(e?.response?.data?.message || 'Failed to create post. Please try again.');
     }
   };
 
+  const inputClass = 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3';
+  const labelClass = 'block text-sm font-medium leading-6 text-gray-900 mb-1';
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Create New Post</h1>
-      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
-            Title
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Create New Post</h1>
+        <Link href="/admin/blog" className="text-sm text-indigo-600 hover:text-indigo-500">← Back to posts</Link>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow-sm rounded-xl p-8">
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <div>
+          <label className={labelClass}>Title *</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} required />
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="content">
-            Content
-          </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline h-64"
-            required
-          />
+        <div>
+          <label className={labelClass}>Excerpt</label>
+          <input type="text" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className={inputClass} placeholder="Short summary of the post" />
         </div>
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
+        <div>
+          <label className={labelClass}>Category</label>
+          <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass} placeholder="e.g. Technology, News" />
+        </div>
+        <div>
+          <label className={labelClass}>Cover Image URL</label>
+          <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className={inputClass} placeholder="https://..." />
+        </div>
+        <div>
+          <label className={labelClass}>Tags (comma-separated)</label>
+          <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} className={inputClass} placeholder="nextjs, react, typescript" />
+        </div>
+        <div>
+          <label className={labelClass}>Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
+            <option value="Published">Published</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Content *</label>
+          <RichTextEditor value={content} onChange={setContent} />
+        </div>
+        <div className="flex justify-end gap-4">
+          <Link href="/admin/blog" className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</Link>
+          <button type="submit" className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
             Create Post
           </button>
         </div>

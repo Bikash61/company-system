@@ -11,6 +11,7 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule
   ],
   controllers: [LeadsController],
-  providers: [LeadsService]
+  providers: [LeadsService],
+  exports: [LeadsService],
 })
 export class LeadsModule {}

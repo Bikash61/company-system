@@ -1,0 +1,66 @@
+services:
+  # ─── MongoDB ─────────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - backend
+
+  # ─── NestJS API ──────────────────────────────────────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/austere-analytics
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      MAIL_FROM: ${MAIL_FROM}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      AI_SERVICE_URL: http://ai-service:8000
+    depends_on:
+      - mongo
+      - ai-service
+    networks:
+      - backend
+      - frontend
+
+  # ─── Python AI microservice ───────────────────────────────────────────────────
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - backend
+
+  # ─── Next.js frontend ────────────────────────────────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://server:3001/api}
+      NEXT_PUBLIC_CALENDLY_URL: ${NEXT_PUBLIC_CALENDLY_URL:-}
+    depends_on:
+      - server
+    networks:
+      - frontend
+
+volumes:
+  mongo_data:
+
+networks:
+  backend:
+  frontend:

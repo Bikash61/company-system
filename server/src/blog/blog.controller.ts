@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,8 +19,14 @@ export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Get()
-  findAll() {
-    return this.blogService.findAll();
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.blogService.findAll(
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 6,
+    );
   }
 
   @Get(':slug')
@@ -33,15 +40,15 @@ export class BlogController {
     return this.blogService.create(createPostDto, req.user);
   }
 
-  @Put(':slug')
+  @Put(':id')
   @UseGuards(AuthGuard())
-  update(@Param('slug') slug: string, @Body() createPostDto: CreatePostDto) {
-    return this.blogService.update(slug, createPostDto);
+  update(@Param('id') id: string, @Body() createPostDto: CreatePostDto) {
+    return this.blogService.updateById(id, createPostDto);
   }
 
-  @Delete(':slug')
+  @Delete(':id')
   @UseGuards(AuthGuard())
-  delete(@Param('slug') slug: string) {
-    return this.blogService.delete(slug);
+  delete(@Param('id') id: string) {
+    return this.blogService.deleteById(id);
   }
 }

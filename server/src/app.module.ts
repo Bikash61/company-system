@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,6 +8,9 @@ import { BlogModule } from './blog/blog.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { LeadsModule } from './leads/leads.module';
 import { AiModule } from './ai/ai.module';
+import { ResourcesModule } from './resources/resources.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -16,16 +19,19 @@ import { AiModule } from './ai/ai.module';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService) => ({
+      useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
       }),
-      inject: [ConfigModule],
+      inject: [ConfigService],
     }),
     AuthModule,
     BlogModule,
     PortfolioModule,
     LeadsModule,
     AiModule,
+    ResourcesModule,
+    NewsletterModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

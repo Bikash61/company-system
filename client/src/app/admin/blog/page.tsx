@@ -10,9 +10,9 @@ interface Post {
   _id: string;
   title: string;
   slug: string;
-  author: {
-    username: string;
-  };
+  status: string;
+  category: string;
+  author: { name: string };
   createdAt: string;
 }
 
@@ -20,46 +20,48 @@ export default function AdminBlogListPage() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const fetchedPosts = await getPosts();
-        setPosts(fetchedPosts);
-      } catch (error) {
-        console.error("Failed to fetch posts", error);
-      }
-    };
-    fetchPosts();
+    getPosts().then(setPosts).catch(console.error);
   }, []);
 
-
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Manage Blog Posts</h1>
-        <Link href="/admin/blog/create" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Create New Post
+        <h1 className="text-2xl font-bold text-gray-900">Blog Posts</h1>
+        <Link href="/admin/blog/create" className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+          + New Post
         </Link>
       </div>
-      <div className="bg-white shadow-md rounded">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-200">
+      <div className="bg-white shadow-sm rounded-xl overflow-hidden ring-1 ring-gray-200">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Author</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Created At</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-100">
+            {posts.length === 0 && (
+              <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-400">No posts yet. Create your first one!</td></tr>
+            )}
             {posts.map((post) => (
-              <tr key={post._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Link href={`/blog/${post.slug}`} className="text-blue-600 hover:underline">
+              <tr key={post._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <Link href={`/blog/${post.slug}`} className="font-medium text-indigo-600 hover:underline" target="_blank">
                     {post.title}
                   </Link>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{post.author.username}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{new Date(post.createdAt).toLocaleDateString()}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{post.category || '—'}</td>
+                <td className="px-6 py-4">
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    post.status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                  }`}>{post.status || 'Published'}</span>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">{post.author?.name || '—'}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</td>
                 <BlogActions postId={post._id} postSlug={post.slug} />
               </tr>
             ))}

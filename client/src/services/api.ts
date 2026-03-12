@@ -1,7 +1,20 @@
 import axios from 'axios';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
 const API = axios.create({
-  baseURL: 'http://localhost:3000', // Base URL for your NestJS backend
+  baseURL: API_BASE_URL,
+});
+
+// Attach token to every request if present
+API.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 // --- Auth ---
@@ -16,8 +29,8 @@ export const loginUser = async (credentials: any) => {
 };
 
 // --- Blog ---
-export const getPosts = async () => {
-  const response = await API.get('/blog');
+export const getPosts = async (page = 1, limit = 6) => {
+  const response = await API.get('/blog', { params: { page, limit } });
   return response.data;
 };
 
@@ -26,30 +39,24 @@ export const getPostBySlug = async (slug: string) => {
   return response.data;
 };
 
-export const createPost = async (postData: any, token: string) => {
-  const response = await API.post('/blog', postData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const createPost = async (postData: any) => {
+  const response = await API.post('/blog', postData);
   return response.data;
 };
 
-export const updatePost = async (id: string, postData: any, token: string) => {
-  const response = await API.put(`/blog/${id}`, postData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const updatePost = async (id: string, postData: any) => {
+  const response = await API.put(`/blog/${id}`, postData);
   return response.data;
 };
 
-export const deletePost = async (id: string, token: string) => {
-  const response = await API.delete(`/blog/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const deletePost = async (id: string) => {
+  const response = await API.delete(`/blog/${id}`);
   return response.data;
 };
 
 // --- Portfolio ---
-export const getPortfolioItems = async () => {
-  const response = await API.get('/portfolio');
+export const getPortfolioItems = async (page = 1, limit = 6) => {
+  const response = await API.get('/portfolio', { params: { page, limit } });
   return response.data;
 };
 
@@ -58,24 +65,18 @@ export const getPortfolioItemById = async (id: string) => {
   return response.data;
 };
 
-export const createPortfolioItem = async (itemData: any, token: string) => {
-  const response = await API.post('/portfolio', itemData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const createPortfolioItem = async (itemData: any) => {
+  const response = await API.post('/portfolio', itemData);
   return response.data;
 };
 
-export const updatePortfolioItem = async (id: string, itemData: any, token: string) => {
-  const response = await API.put(`/portfolio/${id}`, itemData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const updatePortfolioItem = async (id: string, itemData: any) => {
+  const response = await API.put(`/portfolio/${id}`, itemData);
   return response.data;
 };
 
-export const deletePortfolioItem = async (id: string, token: string) => {
-  const response = await API.delete(`/portfolio/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const deletePortfolioItem = async (id: string) => {
+  const response = await API.delete(`/portfolio/${id}`);
   return response.data;
 };
 
@@ -85,26 +86,87 @@ export const submitLead = async (leadData: any) => {
   return response.data;
 };
 
-export const getLeads = async (token: string) => {
-  const response = await API.get('/leads', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getLeads = async () => {
+  const response = await API.get('/leads');
   return response.data;
 };
 
-export const updateLeadStatus = async (id: string, status: string, token: string) => {
-  const response = await API.put(`/leads/${id}/status`, { status }, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const updateLeadStatus = async (id: string, status: string) => {
+  const response = await API.put(`/leads/${id}/status`, { status });
   return response.data;
 };
 
-export const deleteLead = async (id: string, token: string) => {
-  const response = await API.delete(`/leads/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const deleteLead = async (id: string) => {
+  const response = await API.delete(`/leads/${id}`);
   return response.data;
 };
 
+// --- Resources ---
+export const getResources = async () => {
+  const response = await API.get('/resources');
+  return response.data;
+};
 
+export const createResource = async (data: {
+  title: string;
+  description: string;
+  fileUrl: string;
+  coverImageUrl?: string;
+}) => {
+  const response = await API.post('/resources', data);
+  return response.data;
+};
 
+export const deleteResource = async (id: string) => {
+  const response = await API.delete(`/resources/${id}`);
+  return response.data;
+};
+
+export const downloadResource = async (
+  id: string,
+  name: string,
+  email: string,
+): Promise<{ fileUrl: string }> => {
+  const response = await API.post(`/resources/${id}/download`, { name, email });
+  return response.data;
+};
+
+// --- Newsletter ---
+export const subscribeToNewsletter = async (email: string): Promise<{ message: string }> => {
+  const response = await API.post('/newsletter/subscribe', { email });
+  return response.data;
+};
+
+export const getSubscribers = async () => {
+  const response = await API.get('/newsletter/subscribers');
+  return response.data;
+};
+
+export const deleteSubscriber = async (id: string) => {
+  const response = await API.delete(`/newsletter/subscribers/${id}`);
+  return response.data;
+};
+
+// --- AI Service ---
+const AI_BASE_URL = 'http://localhost:8000';
+
+export const analyzeText = async (text: string) => {
+  const response = await axios.post(`${AI_BASE_URL}/analyze`, { text });
+  return response.data;
+};
+
+export const summarizeText = async (text: string, sentences = 3) => {
+  const response = await axios.post(`${AI_BASE_URL}/summarize`, { text, sentences });
+  return response.data;
+};
+
+// --- Chatbot ---
+export interface ChatHistoryMessage {
+  role: 'user' | 'bot';
+  content: string;
+}
+
+export const sendChatMessage = async (message: string, history: ChatHistoryMessage[]) => {
+  const response = await API.post('/ai/chat', { message, history });
+  return response.data as { reply: string; action: string | null };
+};

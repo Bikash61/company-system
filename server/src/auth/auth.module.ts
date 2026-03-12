@@ -16,9 +16,9 @@ import { User, UserSchema } from './schemas/user.schema';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         return {
-          secret: config.get<string>('JWT_SECRET'),
+          secret: config.get<string>('JWT_SECRET') as string,
           signOptions: {
-            expiresIn: config.get<string | number>('JWT_EXPIRES'),
+            expiresIn: (config.get<string>('JWT_EXPIRES') ?? '7d') as string,
           },
         };
       },

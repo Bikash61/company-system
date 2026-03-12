@@ -9,19 +9,23 @@ export class PortfolioService {
   constructor(@InjectModel(PortfolioItem.name) private portfolioItemModel: Model<PortfolioItemDocument>) {}
 
   async create(createPortfolioItemDto: CreatePortfolioItemDto): Promise<PortfolioItem> {
-    const createdItem = new this.portfolioItemModel(createPortfolioItemDto);
-    return createdItem.save();
+    return this.portfolioItemModel.create(createPortfolioItemDto);
   }
 
-  async findAll(): Promise<PortfolioItem[]> {
-    return this.portfolioItemModel.find().exec();
+  async findAll(page = 1, limit = 6): Promise<{ data: PortfolioItem[]; total: number; page: number; totalPages: number }> {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.portfolioItemModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.portfolioItemModel.countDocuments().exec(),
+    ]);
+    return { data, total, page, totalPages: Math.ceil(total / limit) };
   }
 
-  async findOne(id: string): Promise<PortfolioItem> {
+  async findOne(id: string): Promise<PortfolioItem | null> {
     return this.portfolioItemModel.findById(id).exec();
   }
 
-  async update(id: string, updatePortfolioItemDto: CreatePortfolioItemDto): Promise<PortfolioItem> {
+  async update(id: string, updatePortfolioItemDto: CreatePortfolioItemDto): Promise<PortfolioItem | null> {
     return this.portfolioItemModel.findByIdAndUpdate(id, updatePortfolioItemDto, { new: true }).exec();
   }
 

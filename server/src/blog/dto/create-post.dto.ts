@@ -10,6 +10,22 @@ export class CreatePostDto {
   readonly content: string;
 
   @IsOptional()
+  @IsString()
+  readonly excerpt?: string;
+
+  @IsOptional()
+  @IsString()
+  readonly category?: string;
+
+  @IsOptional()
+  @IsString()
+  readonly imageUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  readonly status?: string;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   readonly tags?: string[];
