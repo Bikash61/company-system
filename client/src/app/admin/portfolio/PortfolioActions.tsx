@@ -15,12 +15,7 @@ export default function PortfolioActions({ itemId }: PortfolioActionsProps) {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/auth/login');
-          return;
-        }
-        await deletePortfolioItem(itemId, token);
+        await deletePortfolioItem(itemId);
         router.refresh();
       } catch (error) {
         console.error('Failed to delete item', error);

@@ -11,17 +11,34 @@ export class BlogService {
     @InjectModel(BlogPost.name) private blogPostModel: Model<BlogPostDocument>,
   ) {}
 
-  async findAll(page = 1, limit = 6): Promise<{ data: BlogPost[]; total: number; page: number; totalPages: number }> {
+  async findAll(
+    page = 1,
+    limit = 6,
+  ): Promise<{
+    data: BlogPost[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-      this.blogPostModel.find().populate('author', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.blogPostModel
+        .find()
+        .populate('author', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
       this.blogPostModel.countDocuments().exec(),
     ]);
     return { data, total, page, totalPages: Math.ceil(total / limit) };
   }
 
   async findBySlug(slug: string): Promise<BlogPost> {
-    const post = await this.blogPostModel.findOne({ slug }).populate('author', 'name').exec();
+    const post = await this.blogPostModel
+      .findOne({ slug })
+      .populate('author', 'name')
+      .exec();
     if (!post) {
       throw new NotFoundException(`Post with slug "${slug}" not found`);
     }
@@ -39,15 +56,26 @@ export class BlogService {
   }
 
   async update(slug: string, updatePostDto: CreatePostDto): Promise<BlogPost> {
-    const updatedPost = await this.blogPostModel.findOneAndUpdate({ slug }, updatePostDto, { new: true });
+    const updatedPost = await this.blogPostModel.findOneAndUpdate(
+      { slug },
+      updatePostDto,
+      { new: true },
+    );
     if (!updatedPost) {
       throw new NotFoundException(`Post with slug "${slug}" not found`);
     }
     return updatedPost;
   }
 
-  async updateById(id: string, updatePostDto: CreatePostDto): Promise<BlogPost> {
-    const updatedPost = await this.blogPostModel.findByIdAndUpdate(id, updatePostDto, { new: true });
+  async updateById(
+    id: string,
+    updatePostDto: CreatePostDto,
+  ): Promise<BlogPost> {
+    const updatedPost = await this.blogPostModel.findByIdAndUpdate(
+      id,
+      updatePostDto,
+      { new: true },
+    );
     if (!updatedPost) {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }

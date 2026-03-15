@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { CreatePortfolioItemDto } from './dto/create-portfolio-item.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -14,10 +24,7 @@ export class PortfolioController {
   }
 
   @Get()
-  findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.portfolioService.findAll(
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 6,
@@ -31,7 +38,10 @@ export class PortfolioController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePortfolioItemDto: CreatePortfolioItemDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updatePortfolioItemDto: CreatePortfolioItemDto,
+  ) {
     return this.portfolioService.update(id, updatePortfolioItemDto);
   }
 

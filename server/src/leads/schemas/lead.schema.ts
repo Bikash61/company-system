@@ -22,6 +22,12 @@ export class Lead {
   @Prop()
   phone?: string;
 
+  @Prop()
+  company?: string;
+
+  @Prop()
+  budget?: string;
+
   @Prop({ required: true })
   message: string;
 

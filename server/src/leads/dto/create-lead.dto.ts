@@ -15,6 +15,14 @@ export class CreateLeadDto {
   phone?: string;
 
   @IsString()
+  @IsOptional()
+  company?: string;
+
+  @IsString()
+  @IsOptional()
+  budget?: string;
+
+  @IsString()
   @IsNotEmpty()
   message: string;
 }

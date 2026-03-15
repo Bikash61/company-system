@@ -17,12 +17,30 @@ describe('PortfolioService', () => {
     category: 'Web Development',
   };
 
+  const findChainMock = {
+    sort: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    exec: jest.fn().mockResolvedValue([mockPortfolioItem]),
+  };
+
+  const countMock = {
+    exec: jest.fn().mockResolvedValue(1),
+  };
+
   const mockPortfolioModel = {
     create: jest.fn().mockResolvedValue(mockPortfolioItem),
-    find: jest.fn(() => ({ exec: jest.fn().mockResolvedValue([mockPortfolioItem]) })),
-    findById: jest.fn(() => ({ exec: jest.fn().mockResolvedValue(mockPortfolioItem) })),
-    findByIdAndUpdate: jest.fn(() => ({ exec: jest.fn().mockResolvedValue(mockPortfolioItem) })),
-    findByIdAndDelete: jest.fn(() => ({ exec: jest.fn().mockResolvedValue({ deletedCount: 1 }) })),
+    find: jest.fn().mockReturnValue(findChainMock),
+    findById: jest.fn(() => ({
+      exec: jest.fn().mockResolvedValue(mockPortfolioItem),
+    })),
+    findByIdAndUpdate: jest.fn(() => ({
+      exec: jest.fn().mockResolvedValue(mockPortfolioItem),
+    })),
+    findByIdAndDelete: jest.fn(() => ({
+      exec: jest.fn().mockResolvedValue({ deletedCount: 1 }),
+    })),
+    countDocuments: jest.fn().mockReturnValue(countMock),
   };
 
   beforeEach(async () => {
@@ -53,6 +71,7 @@ describe('PortfolioService', () => {
         category: 'Web Development',
       };
       const result = await service.create(createDto);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(model.create).toHaveBeenCalledWith(createDto);
       expect(result).toEqual(mockPortfolioItem);
     });
@@ -61,14 +80,17 @@ describe('PortfolioService', () => {
   describe('findAll', () => {
     it('should return an array of portfolio items', async () => {
       const result = await service.findAll();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(model.find).toHaveBeenCalled();
-      expect(result).toEqual([mockPortfolioItem]);
+      expect(result.data).toEqual([mockPortfolioItem]);
+      expect(result.total).toBe(1);
     });
   });
 
   describe('findOne', () => {
     it('should return a single portfolio item', async () => {
       const result = await service.findOne('some-id');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(model.findById).toHaveBeenCalledWith('some-id');
       expect(result).toEqual(mockPortfolioItem);
     });
@@ -83,11 +105,18 @@ describe('PortfolioService', () => {
         category: 'Web Development',
       };
       const updatedItem = { ...mockPortfolioItem, ...updateDto };
-      (model.findByIdAndUpdate as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValue(updatedItem) });
-      
+      (model.findByIdAndUpdate as jest.Mock).mockReturnValueOnce({
+        exec: jest.fn().mockResolvedValue(updatedItem),
+      });
+
       const result = await service.update('some-id', updateDto);
-      
-      expect(model.findByIdAndUpdate).toHaveBeenCalledWith('some-id', updateDto, { new: true });
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
+        'some-id',
+        updateDto,
+        { new: true },
+      );
       expect(result).toEqual(updatedItem);
     });
   });
@@ -95,6 +124,7 @@ describe('PortfolioService', () => {
   describe('remove', () => {
     it('should delete a portfolio item', async () => {
       const result = await service.remove('some-id');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(model.findByIdAndDelete).toHaveBeenCalledWith('some-id');
       expect(result).toEqual({ deletedCount: 1 });
     });

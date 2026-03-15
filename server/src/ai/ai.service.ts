@@ -13,6 +13,7 @@ export class AiService {
       const response = await firstValueFrom(
         this.httpService.post(aiServiceUrl, processTextDto),
       );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return response.data;
     } catch (error) {
       console.error('Error contacting AI service:', error);
@@ -26,10 +27,15 @@ export class AiService {
       const response = await firstValueFrom(
         this.httpService.post(aiServiceUrl, chatMessageDto),
       );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return response.data;
     } catch (error) {
       console.error('Error contacting AI chat service:', error);
-      return { reply: "I'm having trouble connecting right now. Please visit our [contact page](/contact) to reach us directly.", action: 'contact' };
+      return {
+        reply:
+          "I'm having trouble connecting right now. Please visit our [contact page](/contact) to reach us directly.",
+        action: 'contact',
+      };
     }
   }
 }

@@ -8,12 +8,12 @@ export default function CTA() {
         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Ready to start your project?
           <br />
-          Let's build something amazing together.
+          Let&apos;s build something amazing together.
         </h2>
         <div className="mt-10 flex items-center gap-x-6">
           <Link
             href="/contact"
-            className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
+            className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
           >
             Get a Quote
           </Link>

@@ -1,5 +1,11 @@
 // src/portfolio/dto/create-portfolio-item.dto.ts
-import { IsString, IsNotEmpty, IsUrl, IsOptional, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsUrl,
+  IsOptional,
+  IsArray,
+} from 'class-validator';
 
 export class CreatePortfolioItemDto {
   @IsString()

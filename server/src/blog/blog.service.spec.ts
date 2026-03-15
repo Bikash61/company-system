@@ -3,6 +3,7 @@ import { BlogService } from './blog.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { BlogPost } from './schemas/blog-post.schema';
 import { Model } from 'mongoose';
+import { User } from '../auth/schemas/user.schema';
 
 describe('BlogService', () => {
   let blogService: BlogService;
@@ -16,6 +17,10 @@ describe('BlogService', () => {
     deleteOne: jest.fn().mockReturnThis(),
     exec: jest.fn(),
     populate: jest.fn().mockReturnThis(),
+    sort: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    countDocuments: jest.fn().mockReturnThis(),
   };
 
   beforeEach(async () => {
@@ -40,13 +45,13 @@ describe('BlogService', () => {
   describe('create', () => {
     it('should create a new blog post', async () => {
       const createPostDto = { title: 'Test Post', content: 'Test Content' };
-      const author = { _id: 'authorId' } as any;
-      
+      const author = { _id: 'authorId' } as unknown as User;
+
       mockBlogPostModel.create.mockResolvedValue({
         ...createPostDto,
         author,
         slug: 'test-post',
-      } as any);
+      });
 
       const result = await blogService.create(createPostDto, author);
 
@@ -58,11 +63,14 @@ describe('BlogService', () => {
   describe('findAll', () => {
     it('should return an array of blog posts', async () => {
       const posts = [{ title: 'Test Post', content: 'Test Content' }];
-      mockBlogPostModel.exec.mockResolvedValue(posts);
+      mockBlogPostModel.exec
+        .mockResolvedValueOnce(posts)
+        .mockResolvedValueOnce(1);
 
       const result = await blogService.findAll();
 
-      expect(result).toEqual(posts);
+      expect(result.data).toEqual(posts);
+      expect(result.total).toBe(1);
     });
   });
 
@@ -79,15 +87,25 @@ describe('BlogService', () => {
 
   describe('update', () => {
     it('should update a blog post', async () => {
-      const updatePostDto = { title: 'Updated Post', content: 'Updated Content' };
+      const updatePostDto = {
+        title: 'Updated Post',
+        content: 'Updated Content',
+      };
       const slug = 'test-post';
       const updatedPost = { ...updatePostDto, slug };
 
-      (blogPostModel.findOneAndUpdate as jest.Mock).mockResolvedValue(updatedPost);
+      (blogPostModel.findOneAndUpdate as jest.Mock).mockResolvedValue(
+        updatedPost,
+      );
 
       const result = await blogService.update(slug, updatePostDto);
 
-      expect(blogPostModel.findOneAndUpdate).toHaveBeenCalledWith({ slug }, updatePostDto, { new: true });
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(blogPostModel.findOneAndUpdate).toHaveBeenCalledWith(
+        { slug },
+        updatePostDto,
+        { new: true },
+      );
       expect(result.title).toEqual(updatePostDto.title);
     });
   });
@@ -95,13 +113,14 @@ describe('BlogService', () => {
   describe('delete', () => {
     it('should delete a blog post', async () => {
       const slug = 'test-post';
-      
+
       (blogPostModel.deleteOne as jest.Mock).mockReturnValue({
         exec: jest.fn().mockResolvedValue({ deletedCount: 1 }),
       });
 
       await blogService.delete(slug);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(blogPostModel.deleteOne).toHaveBeenCalledWith({ slug });
     });
   });

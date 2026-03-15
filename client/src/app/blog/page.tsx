@@ -1,5 +1,6 @@
 import { getPosts } from '@/services/api';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import PaginationControls from '@/components/PaginationControls';
@@ -10,6 +11,24 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 0;
+
+interface BlogPostAuthor {
+  name?: string;
+  imageUrl?: string;
+  role?: string;
+}
+
+interface BlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  imageUrl?: string;
+  category?: string;
+  createdAt: string;
+  author?: BlogPostAuthor;
+}
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string }>;
@@ -33,12 +52,14 @@ const BlogPage = async ({ searchParams }: BlogPageProps) => {
           </p>
         </div>
         <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          {posts.map((post: any) => (
+          {posts.map((post: BlogPost) => (
             <article key={post._id} className="flex flex-col items-start justify-between">
               <div className="relative w-full">
-                <img
+                <Image
                   src={post.imageUrl || 'https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3603&q=80'}
-                  alt=""
+                  alt={post.title}
+                  width={800}
+                  height={450}
                   className="aspect-video w-full rounded-2xl bg-gray-100 object-cover sm:aspect-2/1 lg:aspect-3/2"
                 />
                 <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
@@ -62,7 +83,7 @@ const BlogPage = async ({ searchParams }: BlogPageProps) => {
                   <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">{post.excerpt}</p>
                 </div>
                 <div className="relative mt-8 flex items-center gap-x-4">
-                  <img src={post.author?.imageUrl || 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} alt="" className="h-10 w-10 rounded-full bg-gray-100" />
+                  <Image src={post.author?.imageUrl || 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} alt={post.author?.name || 'Author'} width={40} height={40} className="h-10 w-10 rounded-full bg-gray-100" />
                   <div className="text-sm leading-6">
                     <p className="font-semibold text-gray-900">
                       {post.author?.name || 'Anonymous'}

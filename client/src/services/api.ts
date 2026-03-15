@@ -18,12 +18,12 @@ API.interceptors.request.use((config) => {
 });
 
 // --- Auth ---
-export const registerUser = async (userData: any) => {
+export const registerUser = async (userData: Record<string, unknown>) => {
   const response = await API.post('/auth/register', userData);
   return response.data;
 };
 
-export const loginUser = async (credentials: any) => {
+export const loginUser = async (credentials: Record<string, unknown>) => {
   const response = await API.post('/auth/login', credentials);
   return response.data;
 };
@@ -39,12 +39,12 @@ export const getPostBySlug = async (slug: string) => {
   return response.data;
 };
 
-export const createPost = async (postData: any) => {
+export const createPost = async (postData: Record<string, unknown>) => {
   const response = await API.post('/blog', postData);
   return response.data;
 };
 
-export const updatePost = async (id: string, postData: any) => {
+export const updatePost = async (id: string, postData: Record<string, unknown>) => {
   const response = await API.put(`/blog/${id}`, postData);
   return response.data;
 };
@@ -65,12 +65,12 @@ export const getPortfolioItemById = async (id: string) => {
   return response.data;
 };
 
-export const createPortfolioItem = async (itemData: any) => {
+export const createPortfolioItem = async (itemData: Record<string, unknown>) => {
   const response = await API.post('/portfolio', itemData);
   return response.data;
 };
 
-export const updatePortfolioItem = async (id: string, itemData: any) => {
+export const updatePortfolioItem = async (id: string, itemData: Record<string, unknown>) => {
   const response = await API.put(`/portfolio/${id}`, itemData);
   return response.data;
 };
@@ -81,7 +81,7 @@ export const deletePortfolioItem = async (id: string) => {
 };
 
 // --- Leads ---
-export const submitLead = async (leadData: any) => {
+export const submitLead = async (leadData: Record<string, unknown>) => {
   const response = await API.post('/leads', leadData);
   return response.data;
 };

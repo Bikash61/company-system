@@ -24,7 +24,7 @@ export class NewsletterService {
 
     await this.subscriberModel.create(subscribeDto);
     // Send welcome email
-    this.mailService.sendNewsletterWelcome(subscribeDto.email);
+    void this.mailService.sendNewsletterWelcome(subscribeDto.email);
     return { message: 'Successfully subscribed!' };
   }
 
@@ -32,7 +32,7 @@ export class NewsletterService {
     return this.subscriberModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  async remove(id: string): Promise<any> {
+  async remove(id: string): Promise<Subscriber | null> {
     return this.subscriberModel.findByIdAndDelete(id).exec();
   }
 }

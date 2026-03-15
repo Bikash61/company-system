@@ -16,10 +16,11 @@ export default function NewsletterSignup() {
       setStatus('success');
       setMessage(res.message);
       setEmail('');
-    } catch (err: any) {
+    } catch (err) {
+      const e = err as { response?: { data?: { message?: string } } };
       setStatus('error');
       setMessage(
-        err?.response?.data?.message || 'Something went wrong. Please try again.',
+        e?.response?.data?.message || 'Something went wrong. Please try again.',
       );
     }
   };

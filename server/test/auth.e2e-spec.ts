@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
@@ -15,10 +16,7 @@ describe('AuthController (e2e)', () => {
     const uri = mongod.getUri();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AppModule,
-        MongooseModule.forRoot(uri),
-      ],
+      imports: [AppModule, MongooseModule.forRoot(uri)],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -35,17 +33,25 @@ describe('AuthController (e2e)', () => {
     it('should register a new user', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
-        .send({ name: 'Test User', email: 'test@example.com', password: 'password' })
+        .send({
+          name: 'Test User',
+          email: 'test@example.com',
+          password: 'password',
+        })
         .expect(201)
-        .then(res => {
-          expect(res.body).toHaveProperty('access_token');
+        .then((res) => {
+          expect(res.body).toHaveProperty('email', 'test@example.com');
         });
     });
 
     it('should not register a user with a duplicate email', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
-        .send({ name: 'Test User 2', email: 'test@example.com', password: 'password2' })
+        .send({
+          name: 'Test User 2',
+          email: 'test@example.com',
+          password: 'password2',
+        })
         .expect(400);
     });
   });
@@ -56,8 +62,8 @@ describe('AuthController (e2e)', () => {
         .post('/auth/login')
         .send({ email: 'test@example.com', password: 'password' })
         .expect(200)
-        .then(res => {
-          expect(res.body).toHaveProperty('access_token');
+        .then((res) => {
+          expect(res.body).toHaveProperty('token');
         });
     });
 

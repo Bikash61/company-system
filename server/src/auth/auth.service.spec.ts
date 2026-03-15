@@ -3,14 +3,11 @@ import { AuthService } from './auth.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userModel: Model<User>;
-  let jwtService: JwtService;
 
   const mockUserModel = {
     create: jest.fn(),
@@ -37,8 +34,6 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userModel = module.get<Model<User>>(getModelToken(User.name));
-    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {
@@ -47,9 +42,13 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should register a new user', async () => {
-      const registerDto = { name: 'Test User', email: 'test@example.com', password: 'password' };
+      const registerDto = {
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'password',
+      };
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-      
+
       mockUserModel.create.mockResolvedValue({
         ...registerDto,
         password: hashedPassword,
@@ -66,8 +65,12 @@ describe('AuthService', () => {
     it('should login a user and return a token', async () => {
       const loginDto = { email: 'test@example.com', password: 'password' };
       const hashedPassword = await bcrypt.hash(loginDto.password, 10);
-      const user = { _id: 'someId', email: loginDto.email, password: hashedPassword };
-      
+      const user = {
+        _id: 'someId',
+        email: loginDto.email,
+        password: hashedPassword,
+      };
+
       mockUserModel.findOne.mockResolvedValue(user);
       mockJwtService.sign.mockReturnValue('someToken');
 
@@ -79,19 +82,27 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for invalid credentials', async () => {
       const loginDto = { email: 'test@example.com', password: 'wrongpassword' };
       const hashedPassword = await bcrypt.hash('password', 10);
-      const user = { _id: 'someId', email: loginDto.email, password: hashedPassword };
+      const user = {
+        _id: 'someId',
+        email: loginDto.email,
+        password: hashedPassword,
+      };
 
       mockUserModel.findOne.mockResolvedValue(user);
 
-      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException if user not found', async () => {
-        const loginDto = { email: 'test@example.com', password: 'password' };
-  
-        mockUserModel.findOne.mockResolvedValue(null);
-  
-        await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
-      });
+      const loginDto = { email: 'test@example.com', password: 'password' };
+
+      mockUserModel.findOne.mockResolvedValue(null);
+
+      await expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
   });
 });

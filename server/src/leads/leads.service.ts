@@ -15,8 +15,11 @@ export class LeadsService {
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
     const lead = await this.leadModel.create(createLeadDto);
     // Fire-and-forget emails
-    this.mailService.sendLeadNotification(createLeadDto);
-    this.mailService.sendLeadWelcome({ name: createLeadDto.name, email: createLeadDto.email });
+    void this.mailService.sendLeadNotification(createLeadDto);
+    void this.mailService.sendLeadWelcome({
+      name: createLeadDto.name,
+      email: createLeadDto.email,
+    });
     return lead;
   }
 
@@ -29,10 +32,12 @@ export class LeadsService {
   }
 
   async updateStatus(id: string, status: LeadStatus): Promise<Lead | null> {
-    return this.leadModel.findByIdAndUpdate(id, { status }, { new: true }).exec();
+    return this.leadModel
+      .findByIdAndUpdate(id, { status }, { new: true })
+      .exec();
   }
 
-  async remove(id: string): Promise<any> {
+  async remove(id: string): Promise<Lead | null> {
     return this.leadModel.findByIdAndDelete(id).exec();
   }
 }

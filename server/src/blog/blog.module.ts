@@ -7,7 +7,9 @@ import { BlogPost, BlogPostSchema } from './schemas/blog-post.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: BlogPost.name, schema: BlogPostSchema }]),
+    MongooseModule.forFeature([
+      { name: BlogPost.name, schema: BlogPostSchema },
+    ]),
     AuthModule,
   ],
   controllers: [BlogController],

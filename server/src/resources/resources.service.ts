@@ -44,7 +44,7 @@ export class ResourcesService {
     });
 
     // Send download confirmation email
-    this.mailService.sendResourceDownloadConfirmation({
+    void this.mailService.sendResourceDownloadConfirmation({
       name: downloadResourceDto.name,
       email: downloadResourceDto.email,
       resourceTitle: resource.title,

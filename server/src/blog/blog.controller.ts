@@ -10,19 +10,18 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { BlogService } from './blog.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { User } from '../auth/schemas/user.schema';
 
 @Controller('blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Get()
-  findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.blogService.findAll(
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 6,
@@ -36,7 +35,10 @@ export class BlogController {
 
   @Post()
   @UseGuards(AuthGuard())
-  create(@Body() createPostDto: CreatePostDto, @Req() req) {
+  create(
+    @Body() createPostDto: CreatePostDto,
+    @Req() req: Request & { user: User },
+  ) {
     return this.blogService.create(createPostDto, req.user);
   }
 

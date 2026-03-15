@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AiService } from './ai.service';
 import { HttpService } from '@nestjs/axios';
@@ -39,7 +40,10 @@ describe('AiService', () => {
       const response: AxiosResponse<any> = {
         data: expectedResult,
         headers: {},
-        config: { url: 'http://127.0.0.1:8000/process-text', headers: undefined as any },
+        config: {
+          url: 'http://127.0.0.1:8000/process-text',
+          headers: undefined as any,
+        },
         status: 200,
         statusText: 'OK',
       };
@@ -48,16 +52,24 @@ describe('AiService', () => {
 
       const result = await service.processText(dto);
 
-      expect(httpService.post).toHaveBeenCalledWith('http://127.0.0.1:8000/process-text', dto);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(httpService.post).toHaveBeenCalledWith(
+        'http://127.0.0.1:8000/process-text',
+        dto,
+      );
       expect(result).toEqual(expectedResult);
     });
 
     it('should throw an error if the AI service call fails', async () => {
       const dto: ProcessTextDto = { text: 'Test input' };
-      
-      mockHttpService.post.mockReturnValue(throwError(() => new Error('AI service error')));
 
-      await expect(service.processText(dto)).rejects.toThrow('Failed to process text with AI service.');
+      mockHttpService.post.mockReturnValue(
+        throwError(() => new Error('AI service error')),
+      );
+
+      await expect(service.processText(dto)).rejects.toThrow(
+        'Failed to process text with AI service.',
+      );
     });
   });
 });

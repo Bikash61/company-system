@@ -8,7 +8,9 @@ import { LeadsModule } from 'src/leads/leads.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Resource.name, schema: ResourceSchema }]),
+    MongooseModule.forFeature([
+      { name: Resource.name, schema: ResourceSchema },
+    ]),
     AuthModule,
     LeadsModule,
   ],

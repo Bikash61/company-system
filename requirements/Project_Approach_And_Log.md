@@ -98,9 +98,78 @@ This document tracks the project's evolution, key decisions, and the steps we ar
 - `/services` — Detailed service cards (Web Dev, AI, Design, API, Mobile, PM) with feature lists and CTA.
 - Both pages added to the Footer. About and Services added to the Navbar.
 
-### 5.5 Next Steps
+### 5.5 Phase 3 Completions (2026-03-12)
 
-- **FR-5: Email Nurturing** — SendGrid/Resend integration to trigger automated email sequences on lead creation and resource download.
-- Implement a rich-text editor (e.g. TipTap) for the blog post create/edit forms.
-- Add pagination to Blog and Portfolio public pages.
-- Production deployment configuration (Docker, CI/CD, environment variables).
+#### FR-5: Email Nurturing
+
+- **Backend:** `MailModule` (global) wrapping Resend SDK. `MailService` exposes four transactional methods:
+  - `sendLeadConfirmation` — welcome email on contact form submission.
+  - `sendResourceDownloadConfirmation` — delivery email with file URL on gated download.
+  - `sendNewsletterWelcome` — welcome email on newsletter subscribe.
+  - `sendLeadStatusUpdate` — notification when admin changes a lead's status.
+- Server `.env.example` updated with `RESEND_API_KEY`, `MAIL_FROM`, `ADMIN_EMAIL`.
+
+#### TipTap Rich-Text Editor
+
+- `RichTextEditor.tsx` component built with `@tiptap/react` and `@tiptap/starter-kit`.
+- Full toolbar: Bold, Italic, Strike, Code, H1–H4, Blockquote, Bullet/Ordered list, Hard-break, Undo, Redo.
+- Loaded via `dynamic()` (SSR disabled) in `/admin/blog/create` and `/admin/blog/edit/[slug]`, replacing plain `<textarea>`.
+
+#### Pagination
+
+- **Backend:** `GET /blog?page=1&limit=6` and `GET /portfolio?page=1&limit=6` return `{ data, total, page, totalPages }`.
+- **Frontend:** `PaginationControls.tsx` client component with Prev/Next buttons and page info. Blog and Portfolio public listing pages read from `searchParams.page`.
+
+#### Production Deployment Configuration
+
+- `server/Dockerfile`, `client/Dockerfile`, `ai-service/Dockerfile` — multi-stage builds.
+- `docker-compose.yml` — four services (`mongo`, `server` on 3001, `ai-service` on 8000, `client` on 3000) with shared network and volume.
+- `.github/workflows/ci.yml` — GitHub Actions CI pipeline (lint, test, build on push/PR to main).
+- `next.config.ts` updated with `output: 'standalone'` for optimized Docker image.
+
+### 5.6 Phase 4: Production Hardening & Bug Fixes (2026-03-12)
+
+#### Security Hardening
+
+- **Helmet:** `helmet()` middleware added to `server/src/main.ts` — sets 11 HTTP security headers (HSTS, CSP, X-Frame-Options, etc.).
+- **Rate Limiting:** `ThrottlerModule.forRoot([{ ttl: 60000, limit: 30 }])` added globally in `app.module.ts`. Auth endpoints (`/auth/login`, `/auth/register`) have a stricter `@Throttle({ default: { ttl: 60000, limit: 5 } })` decorator to prevent brute-force attacks.
+- **XSS Protection:** `sanitize-html` added to `client/src/app/blog/[slug]/page.tsx`. Blog HTML is sanitized with an allowlist (h1–h4, p, code, blockquote, img, figure, iframe) before being passed to `dangerouslySetInnerHTML`.
+- **CORS:** `server/src/main.ts` now reads a comma-separated `CLIENT_URL` env var to support multiple allowed origins (dev + prod).
+
+#### FR-7 Completion (Contact & Quote Forms)
+
+- `company` (optional string) and `budget` (optional enum string: Under $5k / $5k–$15k / $15k–$50k / $50k+) fields added to:
+  - `server/src/leads/dto/create-lead.dto.ts`
+  - `server/src/leads/schemas/lead.schema.ts`
+  - `client/src/app/contact/page.tsx` — UI fields and form state.
+
+#### Bug Fixes
+
+| File | Issue | Fix |
+|---|---|---|
+| `server/src/auth/auth.service.spec.ts` | Unused `Model` import, unused `userModel`/`jwtService` vars | Removed |
+| `server/test/auth.e2e-spec.ts` | `access_token` vs `token` assertion mismatch; `mongodb-memory-server` type resolution with `nodenext` | Fixed token key; added scoped `eslint-disable` |
+| `client/src/components/home/Portfolio.tsx` | `<img>` tag; Tailwind v4 `aspect-[16/9]` etc. | `<Image>` component; Tailwind v4 shorthands |
+| `client/src/app/page.tsx` | Duplicate `focus-visible:outline`; Tailwind v4 classes | Removed duplicate; fixed class names |
+| `client/src/app/contact/page.tsx` | Tailwind v4 arbitrary value classes | Replaced with v4 shorthands |
+| `client/src/components/layout/NewsletterSignup.tsx` | `catch (err: any)` | Typed cast pattern |
+| `client/src/components/home/CTA.tsx` | Duplicate `focus-visible:outline` + `focus-visible:outline-2` | Removed bare `outline` |
+| `client/src/components/home/Testimonials.tsx` | `theme(colors.indigo.100)` (Tailwind v3 syntax) | `var(--color-indigo-100)` |
+| `server/src/blog/blog.service.spec.ts` | `as any` on author; Prettier formatting; `unbound-method` on expects | `as unknown as User`; reformatted; `eslint-disable-next-line` |
+
+#### All 12 SRS Functional Requirements — Final Status
+
+| ID | Feature | Status |
+|---|---|---|
+| FR-1 | Blog System (full stack + TipTap editor) | ✅ Complete |
+| FR-2 | SEO-Optimized Pages (generateMetadata, static metadata) | ✅ Complete |
+| FR-3 | Resource Downloads (gated lead-capture, email confirmation) | ✅ Complete |
+| FR-4 | Portfolio / Case Studies (full CRUD + public page) | ✅ Complete |
+| FR-5 | Email Nurturing (Resend — 4 transactional emails) | ✅ Complete |
+| FR-6 | Newsletter Subscription (subscribe + admin panel) | ✅ Complete |
+| FR-7 | Contact & Quote Forms (company + budget fields added) | ✅ Complete |
+| FR-8 | Appointment Scheduling (Calendly widget + /schedule page) | ✅ Complete |
+| FR-9 | AI Chatbot (Python /chat + NestJS proxy + ChatWidget) | ✅ Complete |
+| FR-10 | User Authentication (JWT, bcrypt, register/login) | ✅ Complete |
+| FR-11 | Content Management (admin dashboard, blog/portfolio CRUD) | ✅ Complete |
+| FR-12 | Lead Management (admin leads table, status management) | ✅ Complete |
